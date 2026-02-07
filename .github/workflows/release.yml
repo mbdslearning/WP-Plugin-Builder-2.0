@@ -1,0 +1,27 @@
+
+name: Release Zip
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release zip (git archive)
+        run: |
+          mkdir -p dist
+          git archive --format=zip --output dist/plugin.zip HEAD
+          ls -lah dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/plugin.zip

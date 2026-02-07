@@ -1,0 +1,13 @@
+
+name: Performance issue
+description: Report a performance regression or bottleneck.
+title: "[Performance]: "
+labels: ["performance"]
+body:
+  - type: textarea
+    id: perf
+    attributes:
+      label: Performance findings
+      description: Paste `templates/PERFORMANCE_FINDINGS.md` and fill it in.
+    validations:
+      required: true

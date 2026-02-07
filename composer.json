@@ -1,0 +1,32 @@
+
+{
+  "name": "acme/wp-plugin-senior-pipeline",
+  "description": "Dev tooling for auditing, hardening, and shipping a WordPress plugin.",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpstan/phpstan": "^2.0",
+    "squizlabs/php_codesniffer": "^3.10",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "wp-coding-standards/wpcs": "^3.0",
+    "phpunit/phpunit": "^9.6"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "lint:php": "find . -name '*.php' -not -path './vendor/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l",
+    "phpcs": "phpcs -p",
+    "phpcbf": "phpcbf -p",
+    "phpstan": "phpstan analyse -c phpstan.neon.dist --memory-limit=1G",
+    "test": "phpunit -c phpunit.xml.dist"
+  }
+}

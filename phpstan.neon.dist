@@ -1,0 +1,17 @@
+
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 6
+  paths:
+    - .
+
+  excludePaths:
+    - vendor
+    - node_modules
+    - build
+    - dist
+    - tests
+
+  reportUnmatchedIgnoredErrors: true

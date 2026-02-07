@@ -1,0 +1,14 @@
+
+name: Bug report
+description: Report a defect with steps to reproduce.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: Repro case
+      description: Paste `templates/REPRO_CASE.md` and fill it in.
+      placeholder: "See templates/REPRO_CASE.md"
+    validations:
+      required: true

@@ -1,0 +1,23 @@
+
+name: Deploy to WordPress.org (optional)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_PASSWORD != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          # Optional: SLUG and BUILD_DIR
+          # SLUG: your-plugin-slug
+          # BUILD_DIR: build

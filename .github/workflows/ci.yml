@@ -1,0 +1,127 @@
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP (lint + phpcs + phpstan + phpunit)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.4', '8.0', '8.2', '8.3' ]
+        wp:  [ 'latest', '6.9.1' ]
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --no-check-all --strict
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: PHP lint
+        run: composer run lint:php
+
+      - name: PHPCS (WPCS + PHPCompatibilityWP)
+        run: composer run phpcs
+
+      - name: PHPStan
+        run: composer run phpstan
+
+
+- name: Install system deps (svn + mysql client)
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y subversion default-mysql-client
+
+      - name: Install WP test suite
+        env:
+          DB_NAME: wordpress_test
+          DB_USER: root
+          DB_PASS: root
+          DB_HOST: 127.0.0.1
+          WP_VERSION: ${{ matrix.wp }}
+        run: bash bin/install-wp-tests.sh
+
+      - name: PHPUnit
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+          WP_CORE_DIR: /tmp/wordpress
+        run: composer run test
+
+  plugin-check:
+    name: Plugin Check (WP.org rules)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './'
+          # Optional: focus on specific categories
+          # categories: |
+          #   security
+          #   performance
+          #   accessibility
+
+  js:
+    name: JS/CSS (lint/build) [optional]
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('package.json') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci || npm install
+
+      - name: Lint JS
+        run: npm run lint:js
+
+      - name: Lint CSS
+        run: npm run lint:css
+
+      - name: Build (optional)
+        run: npm run build || true
