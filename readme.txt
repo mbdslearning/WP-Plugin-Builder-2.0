@@ -1,7 +1,7 @@
 
-=== Plugin Name ===
-Contributors: your-wporg-username
-Tags: tag1, tag2
+=== Woo PayMongo Checkout ===
+Contributors: mbdslearning
+Tags: WooCommerce, PayMongo, GCash, PayMaya, QRPh
 Requires at least: 6.6
 Tested up to: 6.9.1
 Requires PHP: 7.4
